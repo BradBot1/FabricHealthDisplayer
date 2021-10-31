@@ -1,32 +1,32 @@
 {
   "schemaVersion": 1,
-  "id": "template",
+  "id": "fabrichealthdisplayer",
   "version": "${version}",
 
-  "name": "Template Mod",
-  "description": "This is a template mod for BFAPI",
+  "name": "FabricHealthDisplayer",
+  "description": "A simple to mod to add health bars to mobs",
   "authors": [
     "BradBot_1"
   ],
   "contact": {
     "homepage": "https://github.com/BradBot1/",
-    "sources": "https://github.com/BradBot1/BFAPI-template"
+    "sources": "https://github.com/BradBot1/FabricHealthDisplayer"
   },
 
   "license": "Apache License v2",
-  "icon": "assets/template/icon.png",
+  "icon": "assets/fabrichealthdisplayer/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.bb1.fabric.template.Loader"
+      "com.bb1.fabric.healthdisplayer.Loader"
     ]
   },
   "mixins": [
-    "template.mixins.json"
+    "fabrichealthdisplayer.mixins.json"
   ],
 
-  "accessWidener" : "template.accesswidener",
+  "accessWidener" : "fabrichealthdisplayer.accesswidener",
 
   "depends": {
     "fabricloader": ">=0.11.3",

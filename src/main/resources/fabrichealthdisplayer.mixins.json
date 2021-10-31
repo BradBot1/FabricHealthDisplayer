@@ -1,9 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.bb1.fabric.template.mixins",
+  "package": "com.bb1.fabric.healthdisplayer.mixins",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+  	"EntityNameChangerMixin",
+  	"DisplayerMixin"
   ],
   "client": [],
   "injectors": {
