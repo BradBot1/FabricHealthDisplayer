@@ -24,7 +24,7 @@ import net.minecraft.util.Formatting;
  */
 public class Config extends com.bb1.api.config.Config {
 
-	public Config() { super("FabricHealthDisplayer"); }
+	public Config() { super("fabrichealthdisplayer"); }
 	/**
 	 * 0 - off
 	 * 1 - hearts

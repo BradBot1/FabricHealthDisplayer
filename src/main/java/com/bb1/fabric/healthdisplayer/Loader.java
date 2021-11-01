@@ -2,6 +2,7 @@ package com.bb1.fabric.healthdisplayer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import com.bb1.api.events.Events;
 import com.bb1.api.permissions.PermissionManager;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.ModInitializer;
@@ -49,6 +51,11 @@ public class Loader implements ModInitializer {
 	public void onInitialize() {
 		CONFIG.load();
 		CONFIG.save();
+		if (CONFIG.perPlayerOptions) {
+			for (Entry<String, JsonElement> entry : CONFIG.playerPreferences.entrySet()) {
+				DISPLAY_MAP.put(UUID.fromString(entry.getKey()), entry.getValue().getAsInt());
+			}
+		}
 		Events.GameEvents.COMMAND_REGISTRATION_EVENT.register((input)->{
 			if (CONFIG.perPlayerOptions) { // If they enable it we need to add a command to allow players to change their display settings
 				final CommandDispatcher<ServerCommandSource> dispatcher = input.get();
@@ -97,6 +104,15 @@ public class Loader implements ModInitializer {
 		});
 		Events.GameEvents.STOP_EVENT.register((server)->{
 			NameDisplayer.DISPLAYS.forEach(e->e.kill());
+			if (CONFIG.perPlayerOptions) {
+				final JsonObject jsonObject = new JsonObject();
+				for (Entry<UUID, Integer> entry : DISPLAY_MAP.entrySet()) {
+					jsonObject.addProperty(entry.getKey().toString(), entry.getValue());
+				}
+				CONFIG.playerPreferences = jsonObject;
+			} else {
+				CONFIG.playerPreferences = new JsonObject();
+			}
 		});
 	}
 
