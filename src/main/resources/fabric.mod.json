@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "fabrichealthdisplayer",
+  "id": "fabrichealthdisplay",
   "version": "${version}",
 
-  "name": "FabricHealthDisplayer",
+  "name": "FabricHealthDisplay",
   "description": "A simple to mod to add health bars to mobs",
   "authors": [
     "BradBot_1"
