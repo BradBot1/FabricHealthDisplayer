@@ -7,8 +7,11 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.bb1.api.events.Events;
-import com.bb1.api.permissions.PermissionManager;
+import com.bb1.fabric.bfapi.GameObjects;
+import com.bb1.fabric.bfapi.permissions.PermissionUtils;
+import com.bb1.fabric.bfapi.utils.ExceptionWrapper;
+import com.bb1.fabric.bfapi.utils.Field;
+import com.bb1.fabric.bfapi.utils.Inputs.Input;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
@@ -39,6 +42,8 @@ public class Loader implements ModInitializer {
 	
 	private static final Map<UUID, Integer> DISPLAY_MAP = new HashMap<UUID, Integer>();
 	
+	private static final ExceptionWrapper<Input<ServerCommandSource>, ServerPlayerEntity> PLAYER_GETTER = i->i.get().getPlayer();
+	
 	public static final int getDisplayMode(@NotNull UUID user) {
 		return (CONFIG.perPlayerOptions)?DISPLAY_MAP.getOrDefault(user, CONFIG.defaultMode):CONFIG.defaultMode;
 	}
@@ -51,23 +56,26 @@ public class Loader implements ModInitializer {
 	public void onInitialize() {
 		CONFIG.load();
 		CONFIG.save();
+		if (CONFIG.requiresPermission) {
+			CONFIG.permission.register();
+		}
 		if (CONFIG.perPlayerOptions) {
 			for (Entry<String, JsonElement> entry : CONFIG.playerPreferences.entrySet()) {
 				DISPLAY_MAP.put(UUID.fromString(entry.getKey()), entry.getValue().getAsInt());
 			}
 		}
-		Events.GameEvents.COMMAND_REGISTRATION_EVENT.register((input)->{
+		GameObjects.GameEvents.COMMAND_REGISTRATION.addHandler((input)->{
 			if (CONFIG.perPlayerOptions) { // If they enable it we need to add a command to allow players to change their display settings
 				final CommandDispatcher<ServerCommandSource> dispatcher = input.get();
 				for (JsonElement jsonObject : CONFIG.commandNames) {
 					if (jsonObject.isJsonPrimitive()&&jsonObject.getAsJsonPrimitive().isString()) {
 						dispatcher.register(CommandManager.literal(jsonObject.getAsString())
 								.requires((s)->{
-									return (com.bb1.api.Loader.getServerPlayerEntity(s)!=null)&&(CONFIG.requiresPermission?(s.hasPermissionLevel(CONFIG.opLevel)||(PermissionManager.getInstance().isUsable()&&PermissionManager.getInstance().hasPermission(s.getEntity().getUuid(), CONFIG.permission))):true);
+									return ((ExceptionWrapper.exectuteWithReturn(Input.of(s), PLAYER_GETTER)!=null))&&(CONFIG.requiresPermission?(PermissionUtils.hasPermission(Field.of(s.getEntity()), CONFIG.permission.node())):true);
 								})
 								.then(CommandManager.literal("none")
 									.executes((s)->{
-										ServerPlayerEntity player = com.bb1.api.Loader.getServerPlayerEntity(s.getSource());
+										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 0);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -75,7 +83,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("hearts")
 									.executes((s)->{
-										ServerPlayerEntity player = com.bb1.api.Loader.getServerPlayerEntity(s.getSource());
+										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 1);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -83,7 +91,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("percent")
 									.executes((s)->{
-										ServerPlayerEntity player = com.bb1.api.Loader.getServerPlayerEntity(s.getSource());
+										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 2);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -91,7 +99,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("fraction")
 									.executes((s)->{
-										ServerPlayerEntity player = com.bb1.api.Loader.getServerPlayerEntity(s.getSource());
+										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 3);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -102,8 +110,9 @@ public class Loader implements ModInitializer {
 				}
 			}
 		});
-		Events.GameEvents.STOP_EVENT.register((server)->{
+		GameObjects.GameEvents.SERVER_STOP.addHandler((server)->{
 			NameDisplayer.DISPLAYS.forEach(e->e.kill());
+			CONFIG.load();
 			if (CONFIG.perPlayerOptions) {
 				final JsonObject jsonObject = new JsonObject();
 				for (Entry<UUID, Integer> entry : DISPLAY_MAP.entrySet()) {
@@ -113,6 +122,7 @@ public class Loader implements ModInitializer {
 			} else {
 				CONFIG.playerPreferences = new JsonObject();
 			}
+			CONFIG.save();
 		});
 	}
 

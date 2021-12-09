@@ -2,8 +2,8 @@ package com.bb1.fabric.healthdisplayer;
 
 import java.util.Set;
 
-import com.bb1.api.timings.timers.AbstractTimer;
-import com.bb1.api.timings.timers.SystemTimer;
+import com.bb1.fabric.bfapi.timings.timers.AbstractTimer;
+import com.bb1.fabric.bfapi.timings.timers.SystemTimer;
 import com.google.common.collect.Sets;
 
 import net.minecraft.entity.LivingEntity;
