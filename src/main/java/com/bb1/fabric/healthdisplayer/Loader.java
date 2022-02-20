@@ -71,11 +71,11 @@ public class Loader implements ModInitializer {
 					if (jsonObject.isJsonPrimitive()&&jsonObject.getAsJsonPrimitive().isString()) {
 						dispatcher.register(CommandManager.literal(jsonObject.getAsString())
 								.requires((s)->{
-									return ((ExceptionWrapper.exectuteWithReturn(Input.of(s), PLAYER_GETTER)!=null))&&(CONFIG.requiresPermission?(PermissionUtils.hasPermission(Field.of(s.getEntity()), CONFIG.permission.node())):true);
+									return ((ExceptionWrapper.executeWithReturn(Input.of(s), PLAYER_GETTER)!=null))&&(CONFIG.requiresPermission?(PermissionUtils.hasPermission(Field.of(s.getEntity()), CONFIG.permission.node())):true);
 								})
 								.then(CommandManager.literal("none")
 									.executes((s)->{
-										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
+										ServerPlayerEntity player = ExceptionWrapper.executeWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 0);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -83,7 +83,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("hearts")
 									.executes((s)->{
-										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
+										ServerPlayerEntity player = ExceptionWrapper.executeWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 1);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -91,7 +91,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("percent")
 									.executes((s)->{
-										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
+										ServerPlayerEntity player = ExceptionWrapper.executeWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 2);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
@@ -99,7 +99,7 @@ public class Loader implements ModInitializer {
 								)
 								.then(CommandManager.literal("fraction")
 									.executes((s)->{
-										ServerPlayerEntity player = ExceptionWrapper.exectuteWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
+										ServerPlayerEntity player = ExceptionWrapper.executeWithReturn(Input.of(s.getSource()), PLAYER_GETTER);
 										updateDisplayMode(player.getUuid(), 3);
 										player.sendMessage(CONFIG.updatedText, false);
 										return 1;
